@@ -1,0 +1,150 @@
+db.getCollectionNames()
+
+db.teacher.find()
+db.students.find()
+
+// 1) Знайти всіх дітей в яких середня оцінка 4.2
+
+db.students.aggregate([
+    {
+        $match: {
+            avgScore: {$eq: 4.2}
+        }
+    }
+])
+
+// 2) Знайди всіх дітей з 1 класу
+
+db.students.aggregate([
+    {
+        $match: {
+            class: {$eq: 1}
+        }
+    }
+])
+
+// 3) Знайти всіх дітей які вивчають фізику
+
+db.students.aggregate([
+    {
+        $match: {
+            lessons: 'physics'
+        }
+    }
+])
+
+// 4) Знайти всіх дітей, батьки яких працюють в науці ( scientist )
+
+db.students.aggregate([
+    {
+        $match: {
+            'parents.profession': 'scientist'
+        }
+    }
+])
+
+// 5) Знайти дітей, в яких середня оцінка більша за 4
+
+db.students.aggregate([
+    {
+        $match: {
+            avgScore: {$gt: 4}
+        }
+    }
+])
+
+// 6) Знайти найкращого учня
+
+db.students.aggregate([
+    {
+        $group: {
+            _id: 'The best pupil',
+            max: {$max: '$avgScore'}
+        }
+    }
+])
+
+// 7) Знайти найгіршого учня
+
+db.students.aggregate([
+    {
+        $group: {
+            _id: 'Bad pupil',
+            min: {$min: '$avgScore'}
+        }
+    }
+])
+
+// 8) Знайти топ 3 учнів
+
+db.students.aggregate([
+    {
+        $group: {
+            "_id": "$name",
+            AvgScore: {
+                $max: "$avgScore"
+            }
+        }
+    },
+    {
+        $sort: {
+            AvgScore: -1
+        }
+    },
+    {
+        $limit: 3
+    }
+])
+
+// 9) Знайти середній бал по школі
+
+db.students.aggregate([
+    {
+        $group:{
+            _id:'avg',
+            gpa:{$avg:'$avgScore'}
+        }
+    }
+])
+
+// 10) Знайти середній бал дітей які вивчають математику або фізику
+// 11) Знайти середній бал по 2 класі
+// 12) Знайти дітей з не повною сім'єю
+// 13) Знайти батьків які не працюють
+
+db.students.aggregate([
+    {
+        $unwind:'$parents'
+    },
+    {
+        $match:{
+            'parents.profession':{$exists:0}
+        }
+    }
+])
+
+// 14) Вигнати дітей, які мають середній бал менше ніж 2.5
+// 15) Дітям, батьки яких працюють в освіті ( teacher ) поставити 5
+// 16) Знайти дітей які вчаться в початковій школі (до 5 класу) і вивчають фізику ( physics )
+// 17) Знайти найуспішніший клас
+
+db.students.aggregate([
+    {
+        $group: {
+            "_id": "$class",
+            AvgScore: {
+                $max: "$avgScore"
+            }
+        }
+    },
+    {
+        $sort: {
+            AvgScore: -1
+        }
+    },
+    {
+        $limit: 1
+    }
+])
+
+// ********** Не працюючих батьків влаштувати офіціантами (підказка: гуглимо "arrayFilters")
